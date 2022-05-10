@@ -34,6 +34,8 @@ private:
 
 	GLuint		 m_VBOLecture2{};
 
+	GLuint		 m_Lecture3Shader{};
+
 public:
 	Renderer(int windowSizeX, int windowSizeY);
 	~Renderer();
@@ -43,6 +45,7 @@ public:
 
 	void Test();
 	void Lecture2Test();
+	void Lecture3Test();
 
 private:
 	void Initialize(int windowSizeX, int windowSizeY);

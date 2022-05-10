@@ -6,6 +6,8 @@
 #include <cstdlib>
 #include <cassert>
 
+float g_Time{ 1.0f };
+
 Renderer::Renderer(int windowSizeX, int windowSizeY)
 {
 	// Default Setting
@@ -26,6 +28,7 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 
 	// Load shaders
 	m_SolidRectShader = CompileShaders("./Shaders/SolidRect.vs", "./Shaders/SolidRect.fs");
+	m_Lecture3Shader = CompileShaders("./Shaders/Lecture3.vs", "./Shaders/Lecture3.fs");
 
 	// Create VBOs
 	CreateVertexBufferObjects();
@@ -363,6 +366,32 @@ void Renderer::Lecture2Test()
 	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	glDisableVertexAttribArray(attribPosition);
+}
+
+void Renderer::Lecture3Test()
+{
+	glUseProgram(m_Lecture3Shader);
+
+	int attribPosition{ glGetAttribLocation(m_Lecture3Shader, "a_vPosition") };
+
+	glEnableVertexAttribArray(attribPosition);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture2);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	int uniformTime{ glGetUniformLocation(m_Lecture3Shader, "u_fTime") };
+
+	glUniform1f(uniformTime, g_Time);
+
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	g_Time -= 0.01f;
+
+	if (g_Time < 0.0f)
+	{
+		g_Time = 1.0f;
+	}
 
 	glDisableVertexAttribArray(attribPosition);
 }
