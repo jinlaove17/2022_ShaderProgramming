@@ -1,0 +1,104 @@
+셰이더프로그래밍 3주차 필기
+
+#Lecture 2_2
+GPU
+- Pipeline 형태로 동작
+- 병렬적으로 동작
+- 최근에는 CPU와 GPU가 동일한 메모리 영역을 사용하는 아키텍쳐들이 등장하고 있다.
+
+■ OpenGL 데이터 사용
+일단 Bind
+- OpenGL 데이터 생성 시 이미 Bind 했으나 중간에 다른 오브젝트가 Bind 되었을 가능성
+- OpenGL은 종류 당 (GL_ARRAY_BUFFER와 같은 종류) 하나의 오브젝트만 Bind 허용
+=> Bind는 1clock 밖에 소요되지 않기 때문에 사용할 때마다 Bind하는 것을 권장
+=> 일부 API들은 컨택스트 스위치가 발생하여 손실이 발생!
+
+glVertexAttribPointer(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* pointer)
+- Draw 시 데이터를 읽어갈 단위의 크기 및 시작점 설정
+- (그림 참고)
+=> pointer가 0인 경우 Bind된 VBO의 시작 주소를 나타냄
+
+glDrawArrays(GLenum mode, GLint first, GLsizei count)
+- 어떠한 Primitive로 구성할 것인지 선택
+- 시작 정점의 인덱스
+- Vertex를 몇 개 그릴 것인지 입력
+- 이 함수 호출 즉시 GPU가 동작
+=> 렌더링에 관여하는 함수로서, Async하게 동작
+
+■ 실습
+GLSLBase 프로젝트 사용
+- 오늘 배운 내용 구현
+
+
+
+#Lecture 3_0
+■ OpenGL Shading Language
+Vertex Shader
+- 하나의 Vertex 단위로 처리되는 Stage
+=> Vertex는 셰이더가 한 번 동작할 때의 정보이자 단위
+=> 입력과 출력 모두 Vertex
+
+Fragment(Pixel) Shader
+- 하나의 Fragment 단위로 처리되는 Stage
+
+Geometry Shader & Tessellation Shader & Compute Shader
+- 본 강의에서는 다루지 않음 
+
+Basic Types
+- (그림 참고)
+- float, double, int, uint, bool
+- [] 형태로도 선언 가능
+
+변수 범위(C와 동일)
+- 함수 외부에서 선언된 경우 전역 변수로 인식
+- For나 If문 이후 등장하는 {} 내부에서 선언된 경우 내부에서만 제어 가능
+- {} 외부의 변수는 {} 내부에서 제어 가능
+
+변수 타입 캐스팅
+- 정보를 잃게 될 가능성이 있는 경우 명확하게 표시를 해줘야 함
+- ex) double → float, float → int, uint → int
+
+집합체 타입
+- float : vec2, vec3, vec3, mat2, mat2x2, mat4x4, ...
+- double : dvec2, dvec3, dmat2, dmat2x4, ...
+- int : ivec2, ivec3, ivec4
+- uint : uvec2, uvec2, uvec4
+- bool : bvec2, bvec3, bvec4
+=> Intrinsic
+
+집합체 타입 선언
+- vec3 Velocity = vec3(0.0f, 2.0f, 3.0f);
+- vec3 White = vec(1.0f); // vec(1.0f, 1.0f, 1.0f);
+- mat3 m = mat3(4.0f); = (4.0f, 0.0f, 0.0f, 0.0f, 4.0f, 0.0f, 0.0f, 0.0f, 4.0f);
+
+OpenGL은 열우선 행렬(Column Major Matrices)!!
+
+집합체 사용 연습문제(한 번 풀어볼 것)
+- mat4 m = mat4(2.0f);
+- vec4 zVec = m[2];
+- float yScale = m[1][1];
+
+함수 선언 연습문제(한 번 풀어볼 것)
+
+■ Shader 입출력
+- 각 Shader 단위로 입력 값과 출력 값이 있으며, 고유의 입출력 값과 사용자 정의 입출력 값이 있음
+=> 오로지 Vertex Shader에서만 화면상에 그려질 위치가 정해짐
+=> Vertex는 파이프라인 외부에서 사용자가 정의하지만, Fragment는 파이프라인 내부에서 사용자가 정의한다.
+- (그림 참고)
+
+■ Vertex Shader 입력
+사용자가 정의한 VS의 입력 값
+- Attribute라 칭함
+- (그림 참고)
+=> glEnableVertexAttribArray(0) → 안쓸경우 Enable 하지 않으면 불필요한 연산을 수행하지 않는다.
+=> 어트리뷰트는 입력조립기의 정점 정보와 같음(위치, 노멀, 색상, ...)
+
+glEnableVertexAttribArray(0) -> layout(location = 0) in vec3 Position;
+- 버텍스 셰이더 코드의 layout 부분과 연동됨
+
+사용자가 원하는 입력 값이 두 개라면?
+- (그림 참고)
+
+layout 없이도 사용 가능
+- GLint glGetAttribLocation(GLuint program, const char* name)
+=> OpenGL이 임의로 인덱스를 설정하여 받아옴
