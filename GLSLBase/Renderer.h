@@ -34,6 +34,7 @@ private:
 
 	GLuint		 m_VBOLecture2{};
 
+	GLuint		 m_VBOLecture3{};
 	GLuint		 m_Lecture3Shader{};
 
 public:

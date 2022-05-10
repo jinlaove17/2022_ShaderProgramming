@@ -284,6 +284,17 @@ void Renderer::CreateVertexBufferObjects()
 	glGenBuffers(1, &m_VBOLecture2);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture2);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Lecture2Rect), Lecture2Rect, GL_STATIC_DRAW);
+
+	float Lecture3Rect[]
+	{
+		0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f // Triangle1 (x, y, z, r, g, b, a)
+	};
+
+	glGenBuffers(1, &m_VBOLecture3);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture3);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Lecture3Rect), Lecture3Rect, GL_STATIC_DRAW);
 }
 
 GLuint Renderer::CreatePngTexture(char* filePath)
@@ -377,12 +388,22 @@ void Renderer::Lecture3Test()
 	int attribPosition{ glGetAttribLocation(m_Lecture3Shader, "a_vPosition") };
 
 	glEnableVertexAttribArray(attribPosition);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture2);
-	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture3);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), 0);
+
+	int attribColor{ glGetAttribLocation(m_Lecture3Shader, "a_vColor") };
+
+	glEnableVertexAttribArray(attribColor);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture3);
+	glVertexAttribPointer(attribColor, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (GLvoid*)(3 * sizeof(float)));
 
 	int uniformTime{ glGetUniformLocation(m_Lecture3Shader, "u_fTime") };
 
 	glUniform1f(uniformTime, g_Time);
+
+	int uniformColor{ glGetUniformLocation(m_Lecture3Shader, "u_vColor") };
+
+	glUniform4f(uniformColor, 1.0f, 1.0f, 1.0f, 1.0f);
 
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -394,4 +415,5 @@ void Renderer::Lecture3Test()
 	}
 
 	glDisableVertexAttribArray(attribPosition);
+	glDisableVertexAttribArray(attribColor);
 }
