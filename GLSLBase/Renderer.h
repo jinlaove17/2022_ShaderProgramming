@@ -32,6 +32,8 @@ private:
 	GLuint       m_VBORect{};
 	GLuint       m_SolidRectShader{};
 
+	GLuint		 m_VBOLecture2{};
+
 public:
 	Renderer(int windowSizeX, int windowSizeY);
 	~Renderer();
@@ -40,6 +42,7 @@ public:
 	GLuint CreateBmpTexture(char* filePath);
 
 	void Test();
+	void Lecture2Test();
 
 private:
 	void Initialize(int windowSizeX, int windowSizeY);
