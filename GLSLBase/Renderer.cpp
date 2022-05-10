@@ -29,9 +29,11 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	// Load shaders
 	m_SolidRectShader = CompileShaders("./Shaders/SolidRect.vs", "./Shaders/SolidRect.fs");
 	m_Lecture3Shader = CompileShaders("./Shaders/Lecture3.vs", "./Shaders/Lecture3.fs");
+	m_Lecture3ParticleShader = CompileShaders("./Shaders/Lecture3Particle.vs", "./Shaders/Lecture3Particle.fs");
 
 	// Create VBOs
 	CreateVertexBufferObjects();
+	CreateParticles(1000);
 
 	// Initialize model transform matrix : used for rotating quad normal to parallel to camera direction
 	m_m4Model = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -295,6 +297,83 @@ void Renderer::CreateVertexBufferObjects()
 	glGenBuffers(1, &m_VBOLecture3);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture3);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Lecture3Rect), Lecture3Rect, GL_STATIC_DRAW);
+
+	const float PaticleSize{ 0.1f };
+	float Lecture3ParticleRect[]
+	{
+		-PaticleSize, -PaticleSize, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		 PaticleSize,  PaticleSize, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		-PaticleSize,  PaticleSize, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, // Triangle1 (x, y, z, r, g, b, a)
+	    -PaticleSize, -PaticleSize, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		 PaticleSize, -PaticleSize, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		 PaticleSize,  PaticleSize, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f  // Triangle2 (x, y, z, r, g, b, a)
+	};
+
+	glGenBuffers(1, &m_VBOLecture3Particle);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture3Particle);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Lecture3ParticleRect), Lecture3ParticleRect, GL_STATIC_DRAW);
+}
+
+void Renderer::CreateParticles(int count)
+{
+	const int floatCount{ count * (3) * 3 * 2 }; // (x, y, z)
+	const int vertexCount{ count * 3 * 2 };
+
+	float* particleVertices{ new float[floatCount] {} };
+	const float particleSize{ 0.01f };
+
+	int index{};
+
+	for (int i = 0; i < count; ++i)
+	{
+		float randomValueX{ ((float)rand() / (float)RAND_MAX - 0.5f) * 2.0f }; // -1.0f ~ 1.0f
+		float randomValueY{ ((float)rand() / (float)RAND_MAX - 0.5f) * 2.0f }; // -1.0f ~ 1.0f
+		float randomValueZ{};
+
+		// v0
+		// Position
+		particleVertices[index++] = 0.5f * -particleSize + randomValueX;
+		particleVertices[index++] = 0.5f * -particleSize + randomValueY;
+		particleVertices[index++] = 0.0f;
+
+		// v1
+		// Position
+		particleVertices[index++] = 0.5f * particleSize + randomValueX;
+		particleVertices[index++] = 0.5f * -particleSize + randomValueY;
+		particleVertices[index++] = 0.0f;
+
+		// v2
+		// Position
+		particleVertices[index++] = 0.5f * particleSize + randomValueX;
+		particleVertices[index++] = 0.5f * particleSize + randomValueY;
+		particleVertices[index++] = 0.0f;
+
+		// v3
+		// Position
+		particleVertices[index++] = 0.5f * -particleSize + randomValueX;
+		particleVertices[index++] = 0.5f * -particleSize + randomValueY;
+		particleVertices[index++] = 0.0f;
+
+		// v4
+		// Position
+		particleVertices[index++] = 0.5f * particleSize + randomValueX;
+		particleVertices[index++] = 0.5f * particleSize + randomValueY;
+		particleVertices[index++] = 0.0f;
+
+		// v5
+		// Position
+		particleVertices[index++] = 0.5f * -particleSize + randomValueX;
+		particleVertices[index++] = 0.5f * particleSize + randomValueY;
+		particleVertices[index++] = 0.0f;
+	}
+
+	glGenBuffers(1, &m_VBOLecture3Particles);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture3Particles);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * floatCount, particleVertices, GL_STATIC_DRAW);
+
+	m_VBOLecture3ParticleVertexCount = vertexCount;
+
+	delete[] particleVertices;
 }
 
 GLuint Renderer::CreatePngTexture(char* filePath)
@@ -416,4 +495,19 @@ void Renderer::Lecture3Test()
 
 	glDisableVertexAttribArray(attribPosition);
 	glDisableVertexAttribArray(attribColor);
+}
+
+void Renderer::Lecture3ParticleTest()
+{
+	glUseProgram(m_Lecture3ParticleShader);
+
+	int attribPosition{ glGetAttribLocation(m_Lecture3ParticleShader, "a_vPosition") };
+
+	glEnableVertexAttribArray(attribPosition);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture3Particles);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glDrawArrays(GL_TRIANGLES, 0, m_VBOLecture3ParticleVertexCount);
+
+	glDisableVertexAttribArray(attribPosition);
 }

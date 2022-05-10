@@ -41,6 +41,12 @@
     <None Include="Shaders\Lecture3.vs">
       <Filter>Shader</Filter>
     </None>
+    <None Include="Shaders\Lecture3Particle.fs">
+      <Filter>Shader</Filter>
+    </None>
+    <None Include="Shaders\Lecture3Particle.vs">
+      <Filter>Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />

@@ -37,6 +37,12 @@ private:
 	GLuint		 m_VBOLecture3{};
 	GLuint		 m_Lecture3Shader{};
 
+	GLuint		 m_VBOLecture3Particle{};
+	GLuint		 m_Lecture3ParticleShader{};
+
+	GLuint		 m_VBOLecture3Particles{};
+	GLuint		 m_VBOLecture3ParticleVertexCount{};
+
 public:
 	Renderer(int windowSizeX, int windowSizeY);
 	~Renderer();
@@ -47,6 +53,7 @@ public:
 	void Test();
 	void Lecture2Test();
 	void Lecture3Test();
+	void Lecture3ParticleTest();
 
 private:
 	void Initialize(int windowSizeX, int windowSizeY);
@@ -58,4 +65,5 @@ private:
 	GLuint CompileShaders(char* filenameVS, char* filenameFS);
 
 	void CreateVertexBufferObjects();
+	void CreateParticles(int count);
 };
