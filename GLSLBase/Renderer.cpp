@@ -30,6 +30,7 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_SolidRectShader = CompileShaders("./Shaders/SolidRect.vs", "./Shaders/SolidRect.fs");
 	m_Lecture3Shader = CompileShaders("./Shaders/Lecture3.vs", "./Shaders/Lecture3.fs");
 	m_Lecture3ParticleShader = CompileShaders("./Shaders/Lecture3Particle.vs", "./Shaders/Lecture3Particle.fs");
+	m_Lecture4Shader = CompileShaders("./Shaders/Lecture4.vs", "./Shaders/Lecture4.fs");
 
 	// Create VBOs
 	CreateVertexBufferObjects();
@@ -312,6 +313,21 @@ void Renderer::CreateVertexBufferObjects()
 	glGenBuffers(1, &m_VBOLecture3Particle);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture3Particle);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Lecture3ParticleRect), Lecture3ParticleRect, GL_STATIC_DRAW);
+
+	const float rectSize{ 0.5f };
+	float Lecture4Rect[]
+	{
+		-rectSize, -rectSize, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		 rectSize,  rectSize, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		-rectSize,  rectSize, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, // Triangle1 (x, y, z, r, g, b, a)
+		-rectSize, -rectSize, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		 rectSize, -rectSize, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+		 rectSize,  rectSize, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f  // Triangle2 (x, y, z, r, g, b, a)
+	};
+
+	glGenBuffers(1, &m_VBOLecture4);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture4);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Lecture4Rect), Lecture4Rect, GL_STATIC_DRAW);
 }
 
 void Renderer::CreateParticles(int count)
@@ -694,4 +710,25 @@ void Renderer::Lecture3ParticleTest()
 	glDisableVertexAttribArray(attribAmp);
 	glDisableVertexAttribArray(attribRandomValue);
 	glDisableVertexAttribArray(attribRandomColor);
+}
+
+void Renderer::Lecture4Test()
+{
+	glUseProgram(m_Lecture4Shader);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture4);
+
+	int attribPosition{ glGetAttribLocation(m_Lecture4Shader, "a_vPosition") };
+
+	glEnableVertexAttribArray(attribPosition);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), 0);
+
+	int attribColor{ glGetAttribLocation(m_Lecture4Shader, "a_vColor") };
+
+	glEnableVertexAttribArray(attribColor);
+	glVertexAttribPointer(attribColor, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (GLvoid*)(3 * sizeof(float)));
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glDisableVertexAttribArray(attribPosition);
+	glDisableVertexAttribArray(attribColor);
 }

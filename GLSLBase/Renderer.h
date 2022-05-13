@@ -43,6 +43,9 @@ private:
 	GLuint		 m_VBOLecture3Particles{};
 	GLuint		 m_VBOLecture3ParticleVertexCount{};
 
+	GLuint       m_VBOLecture4{};
+	GLuint		 m_Lecture4Shader{};
+
 public:
 	Renderer(int windowSizeX, int windowSizeY);
 	~Renderer();
@@ -54,6 +57,7 @@ public:
 	void Lecture2Test();
 	void Lecture3Test();
 	void Lecture3ParticleTest();
+	void Lecture4Test();
 
 private:
 	void Initialize(int windowSizeX, int windowSizeY);
