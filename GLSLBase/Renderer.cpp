@@ -7,6 +7,19 @@
 #include <cassert>
 
 float g_Time{};
+float g_Points[]
+{
+	((float)rand() / (float)RAND_MAX), ((float)rand() / (float)RAND_MAX), 0.0f,
+	((float)rand() / (float)RAND_MAX), ((float)rand() / (float)RAND_MAX), 0.0f,
+	((float)rand() / (float)RAND_MAX), ((float)rand() / (float)RAND_MAX), 0.0f,
+	((float)rand() / (float)RAND_MAX), ((float)rand() / (float)RAND_MAX), 0.0f,
+	((float)rand() / (float)RAND_MAX), ((float)rand() / (float)RAND_MAX), 0.0f,
+	((float)rand() / (float)RAND_MAX), ((float)rand() / (float)RAND_MAX), 0.0f,
+	((float)rand() / (float)RAND_MAX), ((float)rand() / (float)RAND_MAX), 0.0f,
+	((float)rand() / (float)RAND_MAX), ((float)rand() / (float)RAND_MAX), 0.0f,
+	((float)rand() / (float)RAND_MAX), ((float)rand() / (float)RAND_MAX), 0.0f,
+	((float)rand() / (float)RAND_MAX), ((float)rand() / (float)RAND_MAX), 0.0f
+};
 
 Renderer::Renderer(int windowSizeX, int windowSizeY)
 {
@@ -731,6 +744,37 @@ void Renderer::Lecture4Test()
 
 	glEnableVertexAttribArray(attribColor);
 	glVertexAttribPointer(attribColor, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (GLvoid*)(3 * sizeof(float)));
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glDisableVertexAttribArray(attribPosition);
+	glDisableVertexAttribArray(attribColor);
+}
+
+void Renderer::Lecture4RaindropTest()
+{
+	glUseProgram(m_Lecture4Shader);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture4);
+
+	int attribPosition{ glGetAttribLocation(m_Lecture4Shader, "a_vPosition") };
+
+	glEnableVertexAttribArray(attribPosition);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), 0);
+
+	int attribColor{ glGetAttribLocation(m_Lecture4Shader, "a_vColor") };
+
+	glEnableVertexAttribArray(attribColor);
+	glVertexAttribPointer(attribColor, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (GLvoid*)(3 * sizeof(float)));
+
+	int uniformPoints{ glGetUniformLocation(m_Lecture4Shader, "u_vPoints") };
+
+	glUniform3fv(uniformPoints, _countof(g_Points), g_Points);
+
+	int uniformTime{ glGetUniformLocation(m_Lecture4Shader, "u_fTime") };
+
+	glUniform1f(uniformTime, g_Time);
+
+	g_Time += 0.001f;
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
