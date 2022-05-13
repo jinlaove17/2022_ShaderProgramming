@@ -336,7 +336,7 @@ void Renderer::CreateParticles(int count)
 	const int vertexCount{ count * 3 * 2 };
 
 	float* particleVertices{ new float[floatCount] {} };
-	const float particleSize{ 0.01f };
+	const float particleSize{ 0.05f };
 
 	int index{};
 
@@ -645,6 +645,9 @@ void Renderer::Lecture3Test()
 
 void Renderer::Lecture3ParticleTest()
 {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
 	glUseProgram(m_Lecture3ParticleShader);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture3Particles);
 
@@ -710,6 +713,8 @@ void Renderer::Lecture3ParticleTest()
 	glDisableVertexAttribArray(attribAmp);
 	glDisableVertexAttribArray(attribRandomValue);
 	glDisableVertexAttribArray(attribRandomColor);
+
+	glDisable(GL_BLEND);
 }
 
 void Renderer::Lecture4Test()

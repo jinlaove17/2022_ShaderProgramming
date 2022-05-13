@@ -10,6 +10,7 @@ in float a_fRandomValue;
 in vec4 a_vColor;
 
 out vec4 v_vColor;
+out vec2 v_vTexCoord;
 
 uniform float u_fTime;
 uniform vec3 u_vAccel;
@@ -47,4 +48,5 @@ void main()
 	}
 
 	gl_Position = vec4(vNewPosition, 1.0f);
+	v_vTexCoord = a_vPosition.xy;
 }
