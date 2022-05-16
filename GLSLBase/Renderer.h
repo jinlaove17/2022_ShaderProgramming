@@ -59,6 +59,7 @@ public:
 	void Lecture3ParticleTest();
 	void Lecture4Test();
 	void Lecture4RaindropTest();
+	void Lecture4RaderCirlceTest();
 
 private:
 	void Initialize(int windowSizeX, int windowSizeY);

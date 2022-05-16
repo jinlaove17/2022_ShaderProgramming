@@ -86,7 +86,25 @@ vec4 DrawCircles()
 	return vNewColor;
 }
 
+vec4 DrawRaderCircle()
+{
+	float fDist = distance(v_vColor.xy, vec2(0.5f, 0.0f));
+	vec4 vNewColor = vec4(pow(sin(5.0f * 2.0f * g_fPI * fDist - 100.0f * u_fTime), 4));
+	
+	for (int i = 0; i < 10; ++i)
+	{
+		float fToPointDist = distance(v_vColor.xy, u_vPoints[i].xy);
+
+		if (fToPointDist < 0.1f)
+		{
+			vNewColor += vec4(clamp(sin(2.0f * g_fPI * fToPointDist), 0.0f, 1.0f), 0.0f, 0.0f, 1.0f);
+		}
+	}
+
+	return vNewColor;
+}
+
 void main()
 {
-	FragColor = DrawCircles();
+	FragColor = DrawRaderCircle();
 }
