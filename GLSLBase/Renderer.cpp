@@ -341,6 +341,54 @@ void Renderer::CreateVertexBufferObjects()
 	glGenBuffers(1, &m_VBOLecture4);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture4);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Lecture4Rect), Lecture4Rect, GL_STATIC_DRAW);
+
+	float Lecture4PositionRect[]
+	{
+		-rectSize, -rectSize, 0.0f,
+		 rectSize,  rectSize, 0.0f,
+		-rectSize,  rectSize, 0.0f, // Triangle1 (x, y, z)
+		-rectSize, -rectSize, 0.0f,
+		 rectSize, -rectSize, 0.0f,
+		 rectSize,  rectSize, 0.0f  // Triangle2 (x, y, z)
+	};
+
+	float Lecture4ColorRect[]
+	{
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f, // Triangle1 (r, g, b, a)
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f  // Triangle2 (r, g, b, a)
+	};
+
+	glGenBuffers(1, &m_VBOLecture4PositionPack);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture4PositionPack);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Lecture4PositionRect), Lecture4PositionRect, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &m_VBOLecture4ColorPack);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture4ColorPack);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Lecture4ColorRect), Lecture4ColorRect, GL_STATIC_DRAW);
+
+	float Lecture4PositionToColorRect[]
+	{
+		-rectSize, -rectSize, 0.0f,
+		 rectSize,  rectSize, 0.0f,
+		-rectSize,  rectSize, 0.0f, // Triangle1 (x, y, z)
+		-rectSize, -rectSize, 0.0f,
+		 rectSize, -rectSize, 0.0f,
+		 rectSize,  rectSize, 0.0f, // Triangle2 (x, y, z)
+		 1.0f, 1.0f, 1.0f, 1.0f,
+		 1.0f, 1.0f, 1.0f, 1.0f,
+		 1.0f, 1.0f, 1.0f, 1.0f,    // Triangle1 (r, g, b, a)
+		 1.0f, 1.0f, 1.0f, 1.0f,
+		 1.0f, 1.0f, 1.0f, 1.0f,    // Triangle2 (r, g, b, a)
+		 1.0f, 1.0f, 1.0f, 1.0f
+	};
+
+	glGenBuffers(1, &m_VBOLecture4);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture4);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Lecture4PositionToColorRect), Lecture4PositionToColorRect, GL_STATIC_DRAW);
 }
 
 void Renderer::CreateParticles(int count)
@@ -785,17 +833,47 @@ void Renderer::Lecture4RaindropTest()
 void Renderer::Lecture4RaderCirlceTest()
 {
 	glUseProgram(m_Lecture4Shader);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture4);
 
+	// 1. 각 Array를 생성하여 Packing
+	//int attribPosition{ glGetAttribLocation(m_Lecture4Shader, "a_vPosition") };
+
+	//glEnableVertexAttribArray(attribPosition);
+	//glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture4PositionPack);
+	//glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	//int attribColor{ glGetAttribLocation(m_Lecture4Shader, "a_vColor") };
+
+	//glEnableVertexAttribArray(attribColor);
+	//glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture4ColorPack); // Color가 담긴 VBO를 Bind 해주어야 함!
+	//glVertexAttribPointer(attribColor, 4, GL_FLOAT, GL_FALSE, 0, 0);
+
+	// 2. Position과 Color 정보를 합친 Array를 생성하여 Packing(Position, Color를 번갈아가며)
+	//	  => 지금까지 진행했던 실습들이 위와 같은 패킹방법을 사용한 것임.
+	// 
+	//glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture4);
+
+	//int attribPosition{ glGetAttribLocation(m_Lecture4Shader, "a_vPosition") };
+
+	//glEnableVertexAttribArray(attribPosition);
+	//glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), 0);
+
+	//int attribColor{ glGetAttribLocation(m_Lecture4Shader, "a_vColor") };
+
+	//glEnableVertexAttribArray(attribColor);
+	//glVertexAttribPointer(attribColor, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (GLvoid*)(3 * sizeof(float)));
+
+	// 3. Position과 Color 정보를 합친 Array를 생성하여 Packing(Position이 전부 끝난 후 Color)
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture4);
+	
 	int attribPosition{ glGetAttribLocation(m_Lecture4Shader, "a_vPosition") };
 
 	glEnableVertexAttribArray(attribPosition);
-	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), 0);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	int attribColor{ glGetAttribLocation(m_Lecture4Shader, "a_vColor") };
 
 	glEnableVertexAttribArray(attribColor);
-	glVertexAttribPointer(attribColor, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (GLvoid*)(3 * sizeof(float)));
+	glVertexAttribPointer(attribColor, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(18 * sizeof(float)));
 
 	int uniformPoints{ glGetUniformLocation(m_Lecture4Shader, "u_vPoints") };
 

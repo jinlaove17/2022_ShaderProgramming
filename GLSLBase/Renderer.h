@@ -46,6 +46,9 @@ private:
 	GLuint       m_VBOLecture4{};
 	GLuint		 m_Lecture4Shader{};
 
+	GLuint		 m_VBOLecture4PositionPack{};
+	GLuint		 m_VBOLecture4ColorPack{};
+
 public:
 	Renderer(int windowSizeX, int windowSizeY);
 	~Renderer();

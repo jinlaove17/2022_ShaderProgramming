@@ -89,15 +89,19 @@ vec4 DrawCircles()
 vec4 DrawRaderCircle()
 {
 	float fDist = distance(v_vColor.xy, vec2(0.5f, 0.0f));
-	vec4 vNewColor = vec4(pow(sin(5.0f * 2.0f * g_fPI * fDist - 100.0f * u_fTime), 4));
+
+	// sin의 값은 -1.0f ~ 1.0f 사이의 값이므로, 제곱(pow)하게 되면 양수부분은 작아지고 음수부분은 값이 커진다.
+	// 이때, clamp 함수를 이용하여, sin의 결과 값중 음수값을 제거한다.
+	float fSineValue = clamp(pow(sin(2.0f * g_fPI * fDist - 100.0f * u_fTime), 4), 0.0f, 1.0f); 
+	vec4 vNewColor = vec4(0.5f * fSineValue);        
 	
 	for (int i = 0; i < 10; ++i)
 	{
 		float fToPointDist = distance(v_vColor.xy, u_vPoints[i].xy);
 
-		if (fToPointDist < 0.1f)
+		if (fToPointDist < 0.1f) // fToPointDist가 0.0f ~ 0.1f 일때만, 포인트 주위에 원을 형성한다. 즉, 포인트를 중심으로 하고 반지름이 0.1f인 원을 생성
 		{
-			vNewColor += vec4(clamp(sin(2.0f * g_fPI * fToPointDist), 0.0f, 1.0f), 0.0f, 0.0f, 1.0f);
+			vNewColor += vec4(20.0f * fSineValue * (0.1f - fToPointDist), 0.0f, 0.0f, 1.0f);
 		}
 	}
 
