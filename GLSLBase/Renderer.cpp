@@ -44,10 +44,17 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_Lecture3Shader = CompileShaders("./Shaders/Lecture3.vs", "./Shaders/Lecture3.fs");
 	m_Lecture3ParticleShader = CompileShaders("./Shaders/Lecture3Particle.vs", "./Shaders/Lecture3Particle.fs");
 	m_Lecture4Shader = CompileShaders("./Shaders/Lecture4.vs", "./Shaders/Lecture4.fs");
+	m_Lecture5ByVSShader = CompileShaders("./Shaders/Lecture5ByVS.vs", "./Shaders/Lecture5ByVS.fs");
+	m_Lecture5ByFSShader = CompileShaders("./Shaders/Lecture5ByFS.vs", "./Shaders/Lecture5ByFS.fs");
 
 	// Create VBOs
 	CreateVertexBufferObjects();
+
+	// Create Particles
 	CreateParticles(1000);
+
+	// Create Lines
+	CreateLine(100);
 
 	// Initialize model transform matrix : used for rotating quad normal to parallel to camera direction
 	m_m4Model = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -327,7 +334,7 @@ void Renderer::CreateVertexBufferObjects()
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture3Particle);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Lecture3ParticleRect), Lecture3ParticleRect, GL_STATIC_DRAW);
 
-	const float rectSize{ 0.5f };
+	float rectSize{ 0.5f };
 	float Lecture4Rect[]
 	{
 		-rectSize, -rectSize, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
@@ -389,6 +396,22 @@ void Renderer::CreateVertexBufferObjects()
 	glGenBuffers(1, &m_VBOLecture4);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture4);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Lecture4PositionToColorRect), Lecture4PositionToColorRect, GL_STATIC_DRAW);
+
+	rectSize = 1.0f;
+
+	float Lecture5Rect[]
+	{
+		-rectSize, -rectSize, 0.0f,
+		 rectSize,  rectSize, 0.0f,
+		-rectSize,  rectSize, 0.0f,
+		-rectSize, -rectSize, 0.0f,
+		 rectSize, -rectSize, 0.0f,
+		 rectSize,  rectSize, 0.0f,
+	};
+
+	glGenBuffers(1, &m_VBOLecture5ByFS);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture5ByFS);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Lecture5Rect), Lecture5Rect, GL_STATIC_DRAW);
 }
 
 void Renderer::CreateParticles(int count)
@@ -582,6 +605,30 @@ void Renderer::CreateParticles(int count)
 	m_VBOLecture3ParticleVertexCount = vertexCount;
 
 	delete[] particleVertices;
+}
+
+void Renderer::CreateLine(int count)
+{
+	const int floatCount{ 3 * count }; // x, y, z
+	const int vertexCount{ count };
+
+	float* lineVertices{ new float[floatCount] };
+	int index{};
+
+	for (int i = 0; i < count; ++i)
+	{
+		lineVertices[index++] = -1.0f + (2.0f * i / (count - 1));
+		lineVertices[index++] = 0.0f;
+		lineVertices[index++] = 0.0f;
+	}
+
+	glGenBuffers(1, &m_VBOLecture5ByVS);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture5ByVS);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * floatCount, lineVertices, GL_STATIC_DRAW);
+
+	m_VBOLecture5ByVertexCount = vertexCount;
+
+	delete[] lineVertices;
 }
 
 GLuint Renderer::CreatePngTexture(char* filePath)
@@ -889,4 +936,46 @@ void Renderer::Lecture4RaderCirlceTest()
 
 	glDisableVertexAttribArray(attribPosition);
 	glDisableVertexAttribArray(attribColor);
+}
+
+void Renderer::Lecture5ByVSTest()
+{
+	glUseProgram(m_Lecture5ByVSShader);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture5ByVS);
+
+	int attribPosition{ glGetAttribLocation(m_Lecture5ByVSShader, "a_vPosition") };
+
+	glEnableVertexAttribArray(attribPosition);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	int uniformTime{ glGetUniformLocation(m_Lecture5ByVSShader, "u_fTime") };
+
+	glUniform1f(uniformTime, g_Time);
+
+	g_Time += 0.01f;
+
+	glDrawArrays(GL_LINE_STRIP, 0, m_VBOLecture5ByVertexCount);
+
+	glDisableVertexAttribArray(attribPosition);
+}
+
+void Renderer::Lecture5ByFSTest()
+{
+	glUseProgram(m_Lecture5ByFSShader);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture5ByFS);
+
+	int attribPosition{ glGetAttribLocation(m_Lecture5ByFSShader, "a_vPosition") };
+
+	glEnableVertexAttribArray(attribPosition);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	int uniformTime{ glGetUniformLocation(m_Lecture5ByFSShader, "u_fTime") };
+
+	glUniform1f(uniformTime, g_Time);
+
+	g_Time += 0.01f;
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glDisableVertexAttribArray(attribPosition);
 }

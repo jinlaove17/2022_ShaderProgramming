@@ -49,6 +49,13 @@ private:
 	GLuint		 m_VBOLecture4PositionPack{};
 	GLuint		 m_VBOLecture4ColorPack{};
 
+	GLuint       m_VBOLecture5ByVS{};
+	GLuint		 m_Lecture5ByVSShader{};
+	GLuint		 m_VBOLecture5ByVertexCount{};
+
+	GLuint		 m_VBOLecture5ByFS{};
+	GLuint		 m_Lecture5ByFSShader{};
+
 public:
 	Renderer(int windowSizeX, int windowSizeY);
 	~Renderer();
@@ -63,6 +70,8 @@ public:
 	void Lecture4Test();
 	void Lecture4RaindropTest();
 	void Lecture4RaderCirlceTest();
+	void Lecture5ByVSTest();
+	void Lecture5ByFSTest();
 
 private:
 	void Initialize(int windowSizeX, int windowSizeY);
@@ -75,4 +84,5 @@ private:
 
 	void CreateVertexBufferObjects();
 	void CreateParticles(int count);
+	void CreateLine(int count);
 };

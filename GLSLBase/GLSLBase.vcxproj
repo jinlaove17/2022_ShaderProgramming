@@ -179,6 +179,10 @@
     <None Include="Shaders\Lecture3Particle.vs" />
     <None Include="Shaders\Lecture4.fs" />
     <None Include="Shaders\Lecture4.vs" />
+    <None Include="Shaders\Lecture5ByFS.fs" />
+    <None Include="Shaders\Lecture5ByFS.vs" />
+    <None Include="Shaders\Lecture5ByVS.fs" />
+    <None Include="Shaders\Lecture5ByVS.vs" />
     <None Include="Shaders\SolidRect.fs" />
     <None Include="Shaders\SolidRect.vs" />
   </ItemGroup>
