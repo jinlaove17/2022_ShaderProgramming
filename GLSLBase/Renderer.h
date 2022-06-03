@@ -56,6 +56,8 @@ private:
 	GLuint		 m_VBOLecture5ByFS{};
 	GLuint		 m_Lecture5ByFSShader{};
 
+	GLuint		 m_VBOLecture6{};
+
 public:
 	Renderer(int windowSizeX, int windowSizeY);
 	~Renderer();
@@ -85,4 +87,5 @@ private:
 	void CreateVertexBufferObjects();
 	void CreateParticles(int count);
 	void CreateLine(int count);
+	void CreateTextures();
 };
