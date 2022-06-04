@@ -46,6 +46,7 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_Lecture4Shader = CompileShaders("./Shaders/Lecture4.vs", "./Shaders/Lecture4.fs");
 	m_Lecture5ByVSShader = CompileShaders("./Shaders/Lecture5ByVS.vs", "./Shaders/Lecture5ByVS.fs");
 	m_Lecture5ByFSShader = CompileShaders("./Shaders/Lecture5ByFS.vs", "./Shaders/Lecture5ByFS.fs");
+	m_Lecture6Shader = CompileShaders("./Shaders/Lecture6.vs", "./Shaders/Lecture6.fs");
 
 	// Create VBOs
 	CreateVertexBufferObjects();
@@ -58,6 +59,9 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 
 	// Create Textures
 	CreateTextures();
+
+	// Load Texture
+	m_RGBTexture = CreatePngTexture("Textures/RGB_Texture.png");
 
 	// Initialize model transform matrix : used for rotating quad normal to parallel to camera direction
 	m_m4Model = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -412,9 +416,25 @@ void Renderer::CreateVertexBufferObjects()
 		 rectSize,  rectSize, 0.0f,
 	};
 
+	rectSize = 0.5f;
+
 	glGenBuffers(1, &m_VBOLecture5ByFS);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture5ByFS);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Lecture5Rect), Lecture5Rect, GL_STATIC_DRAW);
+
+	float Lecture6Rect[]
+	{
+		-rectSize, -rectSize, 0.0f, 0.0f, 0.0f, // x, y, z, tex_x, tex_y
+		 rectSize,  rectSize, 0.0f, 1.0f, 1.0f,
+		-rectSize,  rectSize, 0.0f, 0.0f, 1.0f,
+		-rectSize, -rectSize, 0.0f, 0.0f, 0.0f,
+		 rectSize, -rectSize, 0.0f, 1.0f, 0.0f,
+		 rectSize,  rectSize, 0.0f, 1.0f, 1.0f
+	};
+
+	glGenBuffers(1, &m_VBOLecture6);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture6);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Lecture6Rect), Lecture6Rect, GL_STATIC_DRAW);
 }
 
 void Renderer::CreateParticles(int count)
@@ -648,8 +668,8 @@ void Renderer::CreateTextures()
 		0x00000000, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF, 0x00000000, 0xFFFFFFFF
 	};
 
-	glGenTextures(1, &m_VBOLecture6);
-	glBindTexture(GL_TEXTURE_2D, m_VBOLecture6);
+	glGenTextures(1, &m_CheckerTexture);
+	glBindTexture(GL_TEXTURE_2D, m_CheckerTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, CheckBoard);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1004,4 +1024,31 @@ void Renderer::Lecture5ByFSTest()
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glDisableVertexAttribArray(attribPosition);
+}
+
+void Renderer::Lecture6Test()
+{
+	glUseProgram(m_Lecture6Shader);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture6);
+
+	int attribPosition{ glGetAttribLocation(m_Lecture6Shader, "a_vPosition") };
+
+	glEnableVertexAttribArray(attribPosition);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+
+	int attribTexCoord{ glGetAttribLocation(m_Lecture6Shader, "a_vTexCoord") };
+
+	glEnableVertexAttribArray(attribTexCoord);
+	glVertexAttribPointer(attribTexCoord, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (GLvoid*)(3 * sizeof(float)));
+
+	int uniformTexSampler{ glGetUniformLocation(m_Lecture6Shader, "u_sTexSampler") };
+
+	glUniform1i(uniformTexSampler, 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_RGBTexture);
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glDisableVertexAttribArray(attribPosition);
+	glDisableVertexAttribArray(attribTexCoord);
 }

@@ -56,7 +56,10 @@ private:
 	GLuint		 m_VBOLecture5ByFS{};
 	GLuint		 m_Lecture5ByFSShader{};
 
+	GLuint		 m_CheckerTexture{};
+	GLuint		 m_RGBTexture{};
 	GLuint		 m_VBOLecture6{};
+	GLuint       m_Lecture6Shader{};
 
 public:
 	Renderer(int windowSizeX, int windowSizeY);
@@ -74,6 +77,7 @@ public:
 	void Lecture4RaderCirlceTest();
 	void Lecture5ByVSTest();
 	void Lecture5ByFSTest();
+	void Lecture6Test();
 
 private:
 	void Initialize(int windowSizeX, int windowSizeY);
