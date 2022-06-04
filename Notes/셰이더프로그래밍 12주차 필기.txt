@@ -1,0 +1,43 @@
+셰이더프로그래밍 12주차 필기
+
+#Lecture 6_0
+■ 텍스쳐 매핑
+텍스쳐란?
+- 물체의 표면의 디테일을 표현하고자 할 때 모두 버텍스로 표현하기 위해선 매우 많은 데이터가 필요하다.
+- 해당 부분을 이미지로 대체할 경우 간단하게 복잡한 표면을 표현 할 수 있다.
+- 이 이미지를 텍스쳐라고 한다.
+
+필요한 데이터
+- 이미지(jpg, bmp, png, tiff, ...) → Raw Data → Texture
+- 매핑 위치
+
+텍스쳐 상에서 사용되는 좌표계는 u, v 혹은 s, t로 표현 됨
+- OpenGL의 경우 우상향 좌표계이다.
+
+텍스쳐 좌표는 0.0f ~ 1.0f 사이로 정규화 됨
+- 이미지 해상도와 별개이다.
+
+=> 어디에 그려질 것 인가? Vertex Shader의 Output이 해당 값을 가짐
+
+텍스쳐 샘플링은 어느 단계에서 이루어 질까? Fragment Shader
+=> Color를 결정할 때 필요한 Data 가져오기
+=> 이제는 Texture가 Color만을 결정하는 것이 아니다.
+
+- 샘플링을 하기 위해서는 텍스쳐 좌표가 필요하고 좌표를 얻기 위해서는 버텍스 셰이더로부터 받아야 한다.(Attribute)
+
+- 버텍스당 텍스쳐 좌표가 하나씩 필요하다.
+
+uv좌표가 0보다 작거나 1보다 클 경우
+- Wrap 형식에 따라 채워진다.
+
+■ 텍스쳐 생성
+전체적인 순서는 VBO를 생성하는 법과 비슷함
+- glGenTextures() → glBindTexture() → glTexImage2D() → glTexParameteri()
+
+■ 텍스쳐 사용
+- glGetUniformLocation() → glUniform1i() → glActiveTexture() → glBindTexture()
+
+■ 실습
+- 새로운 Shader 및 API 생성 후 구현
+- 문제 : 블러 효과 구현 해보기(나중에)
+- 문제 : 좌표 꼬아보기(그림 참고) - 숙제로 해볼 것!
