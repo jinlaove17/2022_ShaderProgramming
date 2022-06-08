@@ -1047,6 +1047,18 @@ void Renderer::Lecture6Test()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_RGBTexture);
 
+	int uniformTexSampler1{ glGetUniformLocation(m_Lecture6Shader, "u_sTexSampler1") };
+
+	glUniform1i(uniformTexSampler1, 1);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, m_CheckerTexture);
+
+	int uniformTime{ glGetUniformLocation(m_Lecture6Shader, "u_fTime") };
+
+	glUniform1f(uniformTime, g_Time);
+
+	g_Time += 0.01f;
+
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glDisableVertexAttribArray(attribPosition);
