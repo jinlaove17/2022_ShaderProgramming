@@ -71,6 +71,12 @@
     <None Include="Shaders\Lecture6.vs">
       <Filter>Shader\VertexShader</Filter>
     </None>
+    <None Include="Shaders\Lecture9.fs">
+      <Filter>Shader\FragmentShader</Filter>
+    </None>
+    <None Include="Shaders\Lecture9.vs">
+      <Filter>Shader\VertexShader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />

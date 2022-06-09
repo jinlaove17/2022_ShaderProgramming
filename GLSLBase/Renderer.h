@@ -22,7 +22,7 @@ private:
 	glm::vec3    m_v3CameraPosition{}; // Camera Position
 	glm::vec3    m_v3CameraLookAt{};   // Camera Look
 	glm::vec3    m_v3CameraUp{};       // Camera Up
-	
+
 	glm::mat4    m_m4Model{};
 	glm::mat4    m_m4View{};
 	glm::mat4    m_m4OrthoProj{};
@@ -61,6 +61,10 @@ private:
 	GLuint		 m_VBOLecture6{};
 	GLuint       m_Lecture6Shader{};
 
+	GLuint		 m_VBOLecture9{};
+	GLuint		 m_Lecture9Shader{};
+	GLuint		 m_VBOLecture9VertexCount{};
+
 public:
 	Renderer(int windowSizeX, int windowSizeY);
 	~Renderer();
@@ -78,6 +82,7 @@ public:
 	void Lecture5ByVSTest();
 	void Lecture5ByFSTest();
 	void Lecture6Test();
+	void Lecture9Test();
 
 private:
 	void Initialize(int windowSizeX, int windowSizeY);
@@ -92,4 +97,5 @@ private:
 	void CreateParticles(int count);
 	void CreateLine(int count);
 	void CreateTextures();
+	void CreateDummyMesh();
 };

@@ -47,6 +47,7 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_Lecture5ByVSShader = CompileShaders("./Shaders/Lecture5ByVS.vs", "./Shaders/Lecture5ByVS.fs");
 	m_Lecture5ByFSShader = CompileShaders("./Shaders/Lecture5ByFS.vs", "./Shaders/Lecture5ByFS.fs");
 	m_Lecture6Shader = CompileShaders("./Shaders/Lecture6.vs", "./Shaders/Lecture6.fs");
+	m_Lecture9Shader = CompileShaders("./Shaders/Lecture9.vs", "./Shaders/Lecture9.fs");
 
 	// Create VBOs
 	CreateVertexBufferObjects();
@@ -59,6 +60,9 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 
 	// Create Textures
 	CreateTextures();
+
+	// Create Dummy Mesh
+	CreateDummyMesh();
 
 	// Load Texture
 	m_RGBTexture = CreatePngTexture("Textures/RGB_Texture.png");
@@ -677,6 +681,73 @@ void Renderer::CreateTextures()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
+void Renderer::CreateDummyMesh()
+{
+	float basePosX{ -0.5f };
+	float basePosY{ -0.5f };
+	float targetPosX{ 0.5f };
+	float targetPosY{ 0.5f };
+
+	int pointCountX{ 32 };
+	int pointCountY{ 32 };
+
+	float width{ targetPosX - basePosX };
+	float height{ targetPosY - basePosY };
+
+	float* point{ new float[pointCountX * pointCountY * 2] };
+	float* vertices{ new float[(pointCountX - 1) * (pointCountY - 1) * 2 * 3 * 3] };
+	
+	m_VBOLecture9VertexCount = (pointCountX - 1) * (pointCountY - 1) * 2 * 3;
+
+	// Prepare points
+	for (int x = 0; x < pointCountX; ++x)
+	{
+		for (int y = 0; y < pointCountY; ++y)
+		{
+			point[(y * pointCountX + x) * 2 + 0] = basePosX + width * (x / (float)(pointCountX - 1));
+			point[(y * pointCountX + x) * 2 + 1] = basePosY + height * (y / (float)(pointCountY - 1));
+		}
+	}
+
+	// Make triangles
+	int Index{};
+
+	for (int x = 0; x < pointCountX - 1; ++x)
+	{
+		for (int y = 0; y < pointCountY - 1; ++y)
+		{
+			// Triangle 1
+			vertices[Index++] = point[(y * pointCountX + x) * 2 + 0];
+			vertices[Index++] = point[(y * pointCountX + x) * 2 + 1];
+			vertices[Index++] = 0.0f;
+			vertices[Index++] = point[((y + 1) * pointCountX + (x + 1)) * 2 + 0];
+			vertices[Index++] = point[((y + 1) * pointCountX + (x + 1)) * 2 + 1];
+			vertices[Index++] = 0.0f;
+			vertices[Index++] = point[((y + 1) * pointCountX + x) * 2 + 0];
+			vertices[Index++] = point[((y + 1) * pointCountX + x) * 2 + 1];
+			vertices[Index++] = 0.0f;
+
+			// Triangle 2
+			vertices[Index++] = point[(y * pointCountX + x) * 2 + 0];
+			vertices[Index++] = point[(y * pointCountX + x) * 2 + 1];
+			vertices[Index++] = 0.0f;
+			vertices[Index++] = point[(y * pointCountX + (x + 1)) * 2 + 0];
+			vertices[Index++] = point[(y * pointCountX + (x + 1)) * 2 + 1];
+			vertices[Index++] = 0.0f;
+			vertices[Index++] = point[((y + 1) * pointCountX + (x + 1)) * 2 + 0];
+			vertices[Index++] = point[((y + 1) * pointCountX + (x + 1)) * 2 + 1];
+			vertices[Index++] = 0.0f;
+		}
+	}
+
+	glGenBuffers(1, &m_VBOLecture9);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture9);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (pointCountX - 1) * (pointCountY - 1) * 2 * 3 * 3, vertices, GL_STATIC_DRAW);
+
+	delete[] point;
+	delete[] vertices;
+}
+
 GLuint Renderer::CreatePngTexture(char* filePath)
 {
 	// Load Pngs: Load file and decode image
@@ -1063,4 +1134,25 @@ void Renderer::Lecture6Test()
 
 	glDisableVertexAttribArray(attribPosition);
 	glDisableVertexAttribArray(attribTexCoord);
+}
+
+void Renderer::Lecture9Test()
+{
+	glUseProgram(m_Lecture9Shader);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture9);
+
+	int attribPosition{ glGetAttribLocation(m_Lecture9Shader, "a_vPosition") };
+
+	glEnableVertexAttribArray(attribPosition);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	int uniformTime{ glGetUniformLocation(m_Lecture9Shader, "u_fTime") };
+
+	glUniform1f(uniformTime, g_Time);
+
+	g_Time += 0.03f;
+
+	glDrawArrays(GL_LINE_STRIP, 0, m_VBOLecture9VertexCount);
+
+	glDisableVertexAttribArray(attribPosition);
 }
