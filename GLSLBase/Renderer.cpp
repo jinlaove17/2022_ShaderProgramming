@@ -48,6 +48,7 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	m_Lecture5ByFSShader = CompileShaders("./Shaders/Lecture5ByFS.vs", "./Shaders/Lecture5ByFS.fs");
 	m_Lecture6Shader = CompileShaders("./Shaders/Lecture6.vs", "./Shaders/Lecture6.fs");
 	m_Lecture9Shader = CompileShaders("./Shaders/Lecture9.vs", "./Shaders/Lecture9.fs");
+	m_Lecture11Shader = CompileShaders("./Shaders/Lecture11.vs", "./Shaders/Lecture11.fs");
 
 	// Create VBOs
 	CreateVertexBufferObjects();
@@ -423,11 +424,11 @@ void Renderer::CreateVertexBufferObjects()
 		 rectSize,  rectSize, 0.0f,
 	};
 
-	rectSize = 0.5f;
-
 	glGenBuffers(1, &m_VBOLecture5ByFS);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture5ByFS);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Lecture5Rect), Lecture5Rect, GL_STATIC_DRAW);
+
+	rectSize = 0.5f;
 
 	float Lecture6Rect[]
 	{
@@ -753,30 +754,37 @@ void Renderer::CreateDummyMesh()
 
 void Renderer::CreateFrameBufferObjects()
 {
-	glGenTextures(1, &m_FBOTextures[0]);
-	glBindTexture(GL_TEXTURE_2D, m_FBOTextures[0]);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 512, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-
-	glGenRenderbuffers(1, &m_DepthRenderBuffers[0]);
-	glBindRenderbuffer(GL_RENDERBUFFER, m_DepthRenderBuffers[0]);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 512, 512);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-	glGenFramebuffers(1, &m_FBOs[0]);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FBOTextures[0], 0);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_DepthRenderBuffers[0]);
-
-	GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-
-	if (Status != GL_FRAMEBUFFER_COMPLETE)
+	for (UINT i = 0; i < 4; ++i)
 	{
-		std::cout << "Something goes wrong while gen FBO" << std::endl;
+		glGenTextures(1, &m_FBOTextures[i]);
+		glBindTexture(GL_TEXTURE_2D, m_FBOTextures[i]);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 512, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+		glGenRenderbuffers(1, &m_DepthRenderBuffers[i]);
+		glBindRenderbuffer(GL_RENDERBUFFER, m_DepthRenderBuffers[i]);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 512, 512);
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+		glGenFramebuffers(1, &m_FBOs[i]);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_FBOs[i]);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FBOTextures[i], 0);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_DepthRenderBuffers[i]);
+
+		GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+		if (Status != GL_FRAMEBUFFER_COMPLETE)
+		{
+			std::cout << "Something goes wrong while gen FBO " << i << std::endl;
+		}
 	}
+
+	// 다시 메인 프레임버퍼에 그린다.
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 GLuint Renderer::CreatePngTexture(char* filePath)
@@ -1184,6 +1192,98 @@ void Renderer::Lecture9Test()
 	g_Time += 0.03f;
 
 	glDrawArrays(GL_LINE_STRIP, 0, m_VBOLecture9VertexCount);
+
+	glDisableVertexAttribArray(attribPosition);
+}
+
+void Renderer::FBORender()
+{
+	// # FBO 0
+	// 1. Bind Framebuffer object
+	glBindFramebuffer(GL_FRAMEBUFFER, m_FBOs[0]);
+
+	// 2. Set viewport
+	glViewport(0, 0, 512, 512);
+
+	// 3. Clear
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// 4. Rendering
+	Lecture3ParticleTest();
+
+	// # FBO 1
+	// 1. Bind Framebuffer object
+	glBindFramebuffer(GL_FRAMEBUFFER, m_FBOs[1]);
+
+	// 2. Set viewport
+	glViewport(0, 0, 512, 512);
+
+	// 3. Clear
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// 4. Rendering
+	Lecture4RaderCirlceTest();
+
+	// # FBO 2
+	// 1. Bind Framebuffer object
+	glBindFramebuffer(GL_FRAMEBUFFER, m_FBOs[2]);
+
+	// 2. Set viewport
+	glViewport(0, 0, 512, 512);
+
+	// 3. Clear
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// 4. Rendering
+	Lecture6Test();
+
+	// # FBO 3
+	// 1. Bind Framebuffer object
+	glBindFramebuffer(GL_FRAMEBUFFER, m_FBOs[3]);
+
+	// 2. Set viewport
+	glViewport(0, 0, 512, 512);
+
+	// 3. Clear
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// 4. Rendering
+	Lecture9Test();
+
+	// Restore framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// Draw Textures
+	glViewport(0, 0, 250, 250);
+	DrawFullScreenTexture(m_FBOTextures[0]);
+
+	glViewport(250, 0, 250, 250);
+	DrawFullScreenTexture(m_FBOTextures[1]);
+
+	glViewport(0, 250, 250, 250);
+	DrawFullScreenTexture(m_FBOTextures[2]);
+
+	glViewport(250, 250, 250, 250);
+	DrawFullScreenTexture(m_FBOTextures[3]);
+}
+
+void Renderer::DrawFullScreenTexture(GLuint textureID)
+{
+	glUseProgram(m_Lecture11Shader);
+	glBindBuffer(GL_ARRAY_BUFFER, m_VBOLecture5ByFS);
+
+	int attribPosition{ glGetAttribLocation(m_Lecture11Shader, "a_vPosition") };
+
+	glEnableVertexAttribArray(attribPosition);
+	glVertexAttribPointer(attribPosition, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+	int uniformTexSampler{ glGetUniformLocation(m_Lecture11Shader, "u_sTexSampler") };
+
+	glUniform1i(uniformTexSampler, 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
 
 	glDisableVertexAttribArray(attribPosition);
 }

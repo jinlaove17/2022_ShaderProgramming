@@ -173,6 +173,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\Lecture11.fs" />
+    <None Include="Shaders\Lecture11.vs" />
     <None Include="Shaders\Lecture3.fs" />
     <None Include="Shaders\Lecture3.vs" />
     <None Include="Shaders\Lecture3Particle.fs" />

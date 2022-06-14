@@ -69,6 +69,8 @@ private:
 	GLuint		 m_FBOTextures[8]{};
 	GLuint		 m_DepthRenderBuffers[8]{};
 
+	GLuint		 m_Lecture11Shader{};
+
 public:
 	Renderer(int windowSizeX, int windowSizeY);
 	~Renderer();
@@ -87,6 +89,9 @@ public:
 	void Lecture5ByFSTest();
 	void Lecture6Test();
 	void Lecture9Test();
+
+	void FBORender();
+	void DrawFullScreenTexture(GLuint textureID);
 
 private:
 	void Initialize(int windowSizeX, int windowSizeY);
