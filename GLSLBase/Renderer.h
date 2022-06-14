@@ -65,6 +65,10 @@ private:
 	GLuint		 m_Lecture9Shader{};
 	GLuint		 m_VBOLecture9VertexCount{};
 
+	GLuint		 m_FBOs[8]{};
+	GLuint		 m_FBOTextures[8]{};
+	GLuint		 m_DepthRenderBuffers[8]{};
+
 public:
 	Renderer(int windowSizeX, int windowSizeY);
 	~Renderer();
@@ -98,4 +102,5 @@ private:
 	void CreateLine(int count);
 	void CreateTextures();
 	void CreateDummyMesh();
+	void CreateFrameBufferObjects();
 };

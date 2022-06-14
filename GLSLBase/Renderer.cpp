@@ -64,6 +64,9 @@ void Renderer::Initialize(int windowSizeX, int windowSizeY)
 	// Create Dummy Mesh
 	CreateDummyMesh();
 
+	// Create Frame Buffer Objects
+	CreateFrameBufferObjects();
+
 	// Load Texture
 	m_RGBTexture = CreatePngTexture("Textures/RGB_Texture.png");
 
@@ -746,6 +749,34 @@ void Renderer::CreateDummyMesh()
 
 	delete[] point;
 	delete[] vertices;
+}
+
+void Renderer::CreateFrameBufferObjects()
+{
+	glGenTextures(1, &m_FBOTextures[0]);
+	glBindTexture(GL_TEXTURE_2D, m_FBOTextures[0]);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 512, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+	glGenRenderbuffers(1, &m_DepthRenderBuffers[0]);
+	glBindRenderbuffer(GL_RENDERBUFFER, m_DepthRenderBuffers[0]);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 512, 512);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	glGenFramebuffers(1, &m_FBOs[0]);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_FBOTextures[0], 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_DepthRenderBuffers[0]);
+
+	GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+	if (Status != GL_FRAMEBUFFER_COMPLETE)
+	{
+		std::cout << "Something goes wrong while gen FBO" << std::endl;
+	}
 }
 
 GLuint Renderer::CreatePngTexture(char* filePath)
